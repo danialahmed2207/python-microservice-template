@@ -1,0 +1,47 @@
+# =============================================================================
+# Docker Compose for Python Microservice
+# =============================================================================
+
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: python-microservice
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/live')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - microservice-network
+
+  # Optional: PostgreSQL Database for production use
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: microservice-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: microservice
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:
